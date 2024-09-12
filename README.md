@@ -22,10 +22,10 @@ To ensure that your Telegram environment variables
 - `PORT`: The PORT you have set. This is used `3000`.
 
 ## Do you want to change the Updates Channel  ?
-- `You have to change so <b>index.js lines Number</b> `15` <b>Or</b> `62` You need to make changes and Save`
+- `You have to change so *index.js lines Number* `15` *Or* `62` You need to make changes and Save`
 
 ## 🔧 Do you want to change the shortener api token?
-- `You have to change so <b>line Number /index.js 150.</b>You need to make changes to your fork repo`
+- `You have to change so *line Number /index.js 150.* You need to make changes to your fork repo`
 ## Shortener api site [Shortener api site](https://maxbox.icu/)
 
 <p align="center">
