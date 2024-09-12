@@ -21,6 +21,19 @@ To ensure that your Telegram environment variables
 - `BOT_TOKEN`: This is your bot's token, which you can generate from [BotFather](https://t.me/BotFather). This token allows your bot to authenticate and interact with the Telegram API.
 - `PORT`: The PORT you have set. This is used `3000`.
 
+## Do you want to change the Updates Channel  ?
+- `You have to change so <b>index.js lines Number</b> `15` <b>Or</b> `62` You need to make changes and Save`
+
+## 🔧 Do you want to change the shortener api token?
+- `You have to change so <b>line Number /index.js 150.</b>You need to make changes to your fork repo`
+## Shortener api site [Shortener api site](https://maxbox.icu/)
+
+<p align="center">
+  <a href="https://raw.githubusercontent.com/SudoR2spr/SudoR2spr/main/assets/angel-op/Changes-and-Save.png" target="_blank">
+    <img alt="GoFile-Downloader" src="https://raw.githubusercontent.com/SudoR2spr/SudoR2spr/main/assets/angel-op/Changes-and-Save.png">
+  </a>
+</p>
+
 
 
 ## Connect with me <img src="https://media.giphy.com/media/iY8CRBdQXODJSCERIr/giphy.gif" width="30px">
