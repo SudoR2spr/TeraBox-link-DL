@@ -21,6 +21,12 @@ To ensure that your Telegram environment variables
 - `BOT_TOKEN`: This is your bot's token, which you can generate from [BotFather](https://t.me/BotFather). This token allows your bot to authenticate and interact with the Telegram API.
 - `PORT`: The PORT you have set. This is used `3000`.
 
+## Botfather Commands
+```
+start - 🦋 Bot Alive Cheking
+status - 📊 Current Bot Stats
+```
+
 ## Do you want to change the Updates Channel  ?
 - `You have to change so *index.js lines Number* `15` *Or* `62` You need to make changes and Save`
 
