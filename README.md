@@ -25,6 +25,7 @@ To ensure that your Telegram environment variables
 ```
 start - 🦋 Bot Alive Cheking
 status - 📊 Current Bot Stats
+broad - ✅ Broadcast message sent to all users
 ```
 
 ## Do you want to change the Updates Channel  ?
