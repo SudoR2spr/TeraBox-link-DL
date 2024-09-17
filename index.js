@@ -165,15 +165,18 @@ bot.on('message', async (msg) => {
 
         if (!isSubscribed) {
             const stickerId = "CAACAgIAAxkBAAEM0yZm6Xz0hczRb-S5YkRIck7cjvQyNQACCh0AAsGoIEkIjTf-YvDReDYE";
+            // Send the sticker
             bot.sendSticker(chatId, stickerId).then(sentSticker => {
+                // Set a timeout to delete the sticker after 30 seconds
                 setTimeout(() => {
                     bot.deleteMessage(chatId, sentSticker.message_id).catch(error => {
-                        console.error('Failed to delete sticker message:', error);
+                        console.error(`Failed to delete sticker message:`, error);
                     });
                 }, 30000); // 30 seconds
             }).catch(error => {
-                console.error('Failed to send sticker:', error);
+                console.error(`Failed to send sticker:`, error);
             });
+
             return;
         }
 
@@ -184,8 +187,6 @@ bot.on('message', async (msg) => {
                         [{ text: "✨ Read the message ✨", url: "https://t.me/WOODcraft_Mirror_Zone/44" }]
                     ]
                 }
-            }).catch(error => {
-                console.error('Failed to send invalid link message:', error);
             });
             return;
         }
@@ -198,12 +199,14 @@ bot.on('message', async (msg) => {
         const existingLink = userLinks.find(linkData => linkData.original === text);
 
         if (existingLink) {
-            bot.sendMessage(chatId, `✅ *Your video has already been processed.* Click the button below to view or download it.`, {
+            bot.sendPhoto(chatId, 'https://i.imgur.com/rzorSxY.jpeg', {
+                caption: `✅ *Your video is ready!*\n\n📥 *Click the button below to view or download it.*`,
+                parse_mode: 'Markdown',
                 reply_markup: {
                     inline_keyboard: [[{ text: 'ᢱ Watch / Download ⎙', url: existingLink.download }]]
                 }
             }).catch(error => {
-                console.error('Failed to send already processed message:', error);
+                console.error(`Failed to send photo:`, error);
             });
             return;
         }
@@ -218,9 +221,9 @@ bot.on('message', async (msg) => {
                     userLinks.push({ original: text, download: downloadUrl });
                     saveData();
 
-                    bot.editMessageText(`✅ *Your video is ready!*\n\n📥 *Click the button below to view or download it.*`, {
-                        chat_id: chatId,
-                        message_id: messageId,
+                    bot.sendPhoto(chatId, 'https://i.imgur.com/rzorSxY.jpeg', {
+                        caption: `✅ *Your video is ready!*\n\n📥 *Click the button below to view or download it.*`,
+                        parse_mode: 'Markdown',
                         reply_markup: {
                             inline_keyboard: [
                                 [{ text: 'ᢱ Watch/Download ⎙', url: downloadUrl }],
@@ -228,12 +231,23 @@ bot.on('message', async (msg) => {
                             ]
                         }
                     }).catch(error => {
-                        console.error('Failed to edit message text:', error);
+                        console.error(`Failed to send photo:`, error);
                     });
 
-                    bot.sendPhoto(chatId, 'https://i.imgur.com/rzorSxY.jpeg').catch(error => {
-                        console.error('Failed to send photo:', error);
+                })
+                .catch(error => {
+                    console.error(error);
+                    bot.editMessageText(`❌ *There was an error processing your link. Please try again later.*`, {
+                        chat_id: chatId,
+                        message_id: messageId
                     });
+                });
+        });
+    } catch (error) {
+        console.error(error);
+        bot.sendMessage(chatId, `❌ *An error occurred. Please try again later.*`);
+    }
+});
 
                 })
                 .catch(error => {
