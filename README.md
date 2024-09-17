@@ -1,4 +1,4 @@
-# 🎬 TeraBox-link-DL [![License: MIT][License-Badge]](LICENSE.md)
+# 🎬 TeraBox-link-DL [![License: MIT][License-Badge]](LICENSE)
 
 <!-- RAINBOW LINE TOP -->
 <img src="https://github.com/SudoR2spr/SudoR2spr/raw/main/assets/line-neon.gif" width="100%">
