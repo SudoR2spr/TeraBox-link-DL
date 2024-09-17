@@ -125,7 +125,7 @@ bot.onText(/\/stat/, (msg) => {
         const userCount = Object.keys(data).length;
         const linkCount = Object.values(data).reduce((sum, userData) => sum + userData.links.length, 0);
 
-        bot.sendPhoto(chatId, 'https://i.imgur.com/H91ehBY.jpeg', {
+        bot.sendPhoto(chatId, 'https://i.imgur.com/5qyYAhJ.jpeg', {
             caption: `📊 *Current Bot Stats:*\n\n👥 *Total Users:* ${userCount}\n🔗 *Links Processed:* ${linkCount}`,
             parse_mode: 'Markdown',
             reply_markup: {
@@ -200,7 +200,7 @@ bot.on('message', async (msg) => {
         const existingLink = userLinks.find(linkData => linkData.original === text);
 
         if (existingLink) {
-            bot.sendPhoto(chatId, 'https://i.imgur.com/rzorSxY.jpeg', {
+            bot.sendPhoto(chatId, 'https://i.imgur.com/5qyYAhJ.jpeg', {
                 caption: `✅ *Your video is ready!*\n\n📥 *Click the button below to view or download it.*`,
                 parse_mode: 'Markdown',
                 reply_markup: {
@@ -222,7 +222,7 @@ bot.on('message', async (msg) => {
                     userLinks.push({ original: text, download: downloadUrl });
                     saveData();
 
-                    bot.sendPhoto(chatId, 'https://i.imgur.com/rzorSxY.jpeg').catch(error => {
+                    bot.sendPhoto(chatId, 'https://i.imgur.com/5qyYAhJ.jpeg').catch(error => {
                         console.error(`Failed to send photo:`, error);
                     });
 
