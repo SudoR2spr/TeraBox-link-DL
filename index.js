@@ -95,7 +95,18 @@ bot.onText(/\/start/, async (msg) => {
             });
         } else {
             sendStartMessage(chatId);
-            bot.sendMessage(chatId, `❗️ *Please subscribe and click /start again to begin using the bot.*`);
+
+            // Send sticker and delete it after 30 seconds
+            const stickerId = "CAACAgIAAxkBAAEM0yZm6Xz0hczRb-S5YkRIck7cjvQyNQACCh0AAsGoIEkIjTf-YvDReDYE";
+            bot.sendSticker(chatId, stickerId).then(sentSticker => {
+                setTimeout(() => {
+                    bot.deleteMessage(chatId, sentSticker.message_id).catch(error => {
+                        console.error('Failed to delete sticker message:', error);
+                    });
+                }, 30000); // 30 seconds
+            }).catch(error => {
+                console.error('Failed to send sticker:', error);
+            });
         }
     } catch (error) {
         console.error('Error handling /start command:', error);
