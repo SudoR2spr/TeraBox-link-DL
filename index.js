@@ -10,10 +10,6 @@ const express = require('express');
 const path = require('path');
 
 const token = process.env.BOT_TOKEN; // Replace with your bot's token
-if (!token) {
-    console.error("BOT_TOKEN environment variable is not set.");
-    process.exit(1);
-}
 const bot = new TelegramBot(token, { polling: true });
 const updatesChannel = '@Opleech_WD';
 
@@ -114,6 +110,7 @@ bot.onText(/\/start/, async (msg) => {
     }
 });
 
+// Handle the /stat command
 bot.onText(/\/stat/, (msg) => {
     const chatId = msg.chat.id;
     try {
@@ -128,28 +125,25 @@ bot.onText(/\/stat/, (msg) => {
                     [{ text: "✨ Dear my friend✨", url: "tg://settings" }]
                 ]
             }
-        }).catch(error => {
-            console.error('Failed to send stats photo:', error);
         });
     } catch (error) {
-        console.error('Error handling /stat command:', error);
+        console.error(error);
         bot.sendMessage(chatId, `❌ *An error occurred while retrieving statistics. Please try again later.*`);
     }
 });
 
+// Handle the /broad command
 bot.onText(/\/broad (.+)/, (msg, match) => {
     const chatId = msg.chat.id;
     const broadcastMessage = match[1];
 
     for (const userId in data) {
         bot.sendMessage(userId, `📢 *Broadcast Message:*\n\n${broadcastMessage}`).catch(error => {
-            console.error(`Failed to send broadcast message to ${userId}:`, error);
+            console.error(`Failed to send message to ${userId}:`, error);
         });
     }
 
-    bot.sendMessage(chatId, `✅ *Broadcast message sent to all users.*`).catch(error => {
-        console.error('Failed to send broadcast confirmation:', error);
-    });
+    bot.sendMessage(chatId, `✅ *Broadcast message sent to all users.*`);
 });
 
 // Handle link messages
@@ -220,17 +214,19 @@ bot.on('message', async (msg) => {
                     userLinks.push({ original: text, download: downloadUrl });
                     saveData();
 
-                    bot.sendPhoto(chatId, 'https://i.imgur.com/rzorSxY.jpeg', {
-                        caption: `✅ *Your video is ready!*\n\n📥 *Click the button below to view or download it.*`,
-                        parse_mode: 'Markdown',
+                    bot.sendPhoto(chatId, 'https://i.imgur.com/rzorSxY.jpeg').catch(error => {
+                        console.error(`Failed to send photo:`, error);
+                    });
+
+                    bot.editMessageText(`✅ *Your video is ready!*\n\n📥 *Click the button below to view or download it.*`, {
+                        chat_id: chatId,
+                        message_id: messageId,
                         reply_markup: {
                             inline_keyboard: [
                                 [{ text: 'ᢱ Watch/Download ⎙', url: downloadUrl }],
                                 [{ text: '✨ Read the message ✨', url: 'https://t.me/WOODcraft_Mirror_Zone/44' }]
                             ]
                         }
-                    }).catch(error => {
-                        console.error(`Failed to send photo:`, error);
                     });
                 })
                 .catch(error => {
@@ -247,8 +243,8 @@ bot.on('message', async (msg) => {
     }
 });
 
-// Serve the HTML file
-app.get('/', (req, res) => {
+// Serve index.html
+app.get('/', function(req, res) {
     res.sendFile(path.join(__dirname, '/index.html'));
 });
 
@@ -262,7 +258,7 @@ process.on('uncaughtException', (err) => {
 });
 
 process.on('unhandledRejection', (reason, promise) => {
-    console.error('Unhandled Rejection:', promise, 'reason:', reason);
+    console.error('Unhandled Rejection:', reason, 'at', promise);
 });
 
 process.on('SIGINT', () => {
