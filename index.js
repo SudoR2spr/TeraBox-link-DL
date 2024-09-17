@@ -16,7 +16,7 @@ if (!token) {
 }
 const bot = new TelegramBot(token, { polling: true });
 const updatesChannel = process.env.OP_CHANNEL; // Replace with your Update channel @Opleech_WD
-if (!OP_CHANNEL) {
+if (!updatesChannel) {
     console.error("OP_CHANNEL environment variable is not set.");
     process.exit(1);
 }
