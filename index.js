@@ -10,6 +10,10 @@ const express = require('express');
 const path = require('path');
 
 const token = process.env.BOT_TOKEN; // Replace with your bot's token
+if (!token) {
+    console.error("BOT_TOKEN environment variable is not set.");
+    process.exit(1);
+}
 const bot = new TelegramBot(token, { polling: true });
 const updatesChannel = '@Opleech_WD';
 
@@ -108,6 +112,44 @@ bot.onText(/\/start/, async (msg) => {
         console.error(error);
         bot.sendMessage(chatId, `❌ *An error occurred. Please try again later.*`);
     }
+});
+
+bot.onText(/\/stat/, (msg) => {
+    const chatId = msg.chat.id;
+    try {
+        const userCount = Object.keys(data).length;
+        const linkCount = Object.values(data).reduce((sum, userData) => sum + userData.links.length, 0);
+
+        bot.sendPhoto(chatId, 'https://i.imgur.com/H91ehBY.jpeg', {
+            caption: `📊 *Current Bot Stats:*\n\n👥 *Total Users:* ${userCount}\n🔗 *Links Processed:* ${linkCount}`,
+            parse_mode: 'Markdown',
+            reply_markup: {
+                inline_keyboard: [
+                    [{ text: "✨ Dear my friend✨", url: "tg://settings" }]
+                ]
+            }
+        }).catch(error => {
+            console.error('Failed to send stats photo:', error);
+        });
+    } catch (error) {
+        console.error('Error handling /stat command:', error);
+        bot.sendMessage(chatId, `❌ *An error occurred while retrieving statistics. Please try again later.*`);
+    }
+});
+
+bot.onText(/\/broad (.+)/, (msg, match) => {
+    const chatId = msg.chat.id;
+    const broadcastMessage = match[1];
+
+    for (const userId in data) {
+        bot.sendMessage(userId, `📢 *Broadcast Message:*\n\n${broadcastMessage}`).catch(error => {
+            console.error(`Failed to send broadcast message to ${userId}:`, error);
+        });
+    }
+
+    bot.sendMessage(chatId, `✅ *Broadcast message sent to all users.*`).catch(error => {
+        console.error('Failed to send broadcast confirmation:', error);
+    });
 });
 
 // Handle link messages
