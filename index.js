@@ -57,7 +57,7 @@ const checkSubscription = async (userId) => {
 // Updated sendStartMessage to include image
 const sendStartMessage = (chatId) => {
     bot.sendPhoto(chatId, 'https://i.imgur.com/6cUMqLc.jpeg', { // Replace with your image URL
-        caption: `👋 *Welcome to TeraBox Video Player Bot!* 🎉\n\n*Paste your TeraBox link and watch your video instantly—no TeraBox app needed!* 🚀\n\nPlease subscribe to our [Updates Channel](https://t.me/Opleech_WD) to start using this bot.`,
+        caption: `👋 *Welcome to TeraBox Video Player Bot!*\n\n*Paste your TeraBox link and watch your video instantly—no TeraBox app needed!*\n\nPlease subscribe to our [Updates Channel](https://t.me/Opleech_WD) and click /start again to begin using the bot.`,
         parse_mode: 'Markdown',
         reply_markup: {
             inline_keyboard: [
@@ -74,7 +74,22 @@ bot.onText(/\/start/, async (msg) => {
         const isSubscribed = await checkSubscription(chatId);
 
         if (isSubscribed) {
-            bot.sendMessage(chatId, `🎉 *Welcome back!* 😊\n\n*Send a TeraBox link to watch or download your video.* 🍿`);
+    const photoUrl = 'https://i.imgur.com/rzorSxY.jpeg';
+    
+    bot.sendPhoto(chatId, photoUrl, {
+        caption: `🎉 *Welcome back!* 😊\n\n*Send a TeraBox link to watch or download your video.* 🍿`,
+        parse_mode: 'Markdown',
+        reply_markup: {
+            inline_keyboard: [
+                [{ text: "✨ Any Help? ✨", url: "https://t.me/+XfmrBSzTyRFlZTI9" }]
+            ]
+        }
+    }).catch(error => {
+        console.error(`Failed to send photo:`, error);
+    });
+
+    return;
+}
         } else {
             sendStartMessage(chatId);
             bot.sendMessage(chatId, `❗️ *Please subscribe and click /start again to begin using the bot.*`);
@@ -132,10 +147,26 @@ bot.on('message', async (msg) => {
         const isSubscribed = await checkSubscription(chatId);
 
         if (!isSubscribed) {
-            sendStartMessage(chatId);
-            bot.sendMessage(chatId, `❗️ *Please subscribe and click /start again to begin using the bot.*`);
-            return;
-        }
+    const stickerId = "CAACAgIAAxkBAAEM0yZm6Xz0hczRb-S5YkRIck7cjvQyNQACCh0AAsGoIEkIjTf-YvDReDYE";
+    
+    // Send the sticker
+    bot.sendSticker(chatId, stickerId).then(sentSticker => {
+        // Set a timeout to delete the sticker after 30 seconds
+        setTimeout(() => {
+            bot.deleteMessage(chatId, sentSticker.message_id).catch(error => {
+                console.error(`Failed to delete sticker message:`, error);
+            });
+        }, 30000); // 30 seconds
+    }).catch(error => {
+        console.error(`Failed to send sticker:`, error);
+    });
+    
+    return;
+}
+
+    
+    return;
+}
 
         if (!isTeraboxLink(text)) {
             bot.sendMessage(chatId, `❌ *That is not a valid TeraBox link.*`, {
@@ -179,9 +210,18 @@ bot.on('message', async (msg) => {
                         chat_id: chatId,
                         message_id: messageId,
                         reply_markup: {
-                            inline_keyboard: [[{ text: 'ᢱ Watch / Download ⎙', url: downloadUrl }]]
+                            inline_keyboard: [
+                                [{ text: 'ᢱ Watch/Download ⎙', url: downloadUrl }],
+                                [{ text: '✨ Read the message ✨', url: 'https://t.me/WOODcraft_Mirror_Zone/44' }]
+                            ]
                         }
                     });
+
+// Send photo above the message
+bot.sendPhoto(chatId, 'https://i.imgur.com/rzorSxY.jpeg').catch(error => {
+    console.error(`Failed to send photo:`, error);
+});
+
                 })
                 .catch(error => {
                     console.error(error);
