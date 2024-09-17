@@ -205,27 +205,22 @@ bot.on('message', async (msg) => {
             bot.sendMessage(chatId, `❌ *That is not a valid TeraBox link.*`, {
                 reply_markup: {
                     inline_keyboard: [
-                        [{ text: "✨ Any Help? ✨", url: "https://t.me/+XfmrBSzTyRFlZTI9" }]
+                        [{ text: "✨ Read the message ✨", url: "https://t.me/WOODcraft_Mirror_Zone/44" }]
                     ]
                 }
-            }).catch(error => {
-                console.error(`Failed to send error message:`, error);
             });
             return;
         }
 
-        // Ensure the user exists in the database
-        let userData = await usersCollection.findOne({ _id: chatId.toString() });
-
-        if (!userData) {
-            await usersCollection.insertOne({ _id: chatId.toString(), links: [] });
+        if (!data[chatId]) {
+            data[chatId] = { links: [] };
         }
 
-        const userLinks = (await usersCollection.findOne({ _id: chatId.toString() })).links;
+        const userLinks = data[chatId].links;
         const existingLink = userLinks.find(linkData => linkData.original === text);
 
         if (existingLink) {
-            bot.sendPhoto(chatId, 'https://i.imgur.com/5qyYAhJ.jpeg', {
+            bot.sendPhoto(chatId, 'https://i.imgur.com/rzorSxY.jpeg', {
                 caption: `✅ *Your video is ready!*\n\n📥 *Click the button below to view or download it.*`,
                 parse_mode: 'Markdown',
                 reply_markup: {
@@ -244,12 +239,10 @@ bot.on('message', async (msg) => {
                 .then(response => {
                     const downloadUrl = response.data.url;
 
-                    usersCollection.updateOne(
-                        { _id: chatId.toString() },
-                        { $push: { links: { original: text, download: downloadUrl } } }
-                    );
+                    userLinks.push({ original: text, download: downloadUrl });
+                    saveData();
 
-                    bot.sendPhoto(chatId, 'https://i.imgur.com/5qyYAhJ.jpeg').catch(error => {
+                    bot.sendPhoto(chatId, 'https://i.imgur.com/rzorSxY.jpeg').catch(error => {
                         console.error(`Failed to send photo:`, error);
                     });
 
@@ -277,7 +270,6 @@ bot.on('message', async (msg) => {
         bot.sendMessage(chatId, `❌ *An error occurred. Please try again later.*`);
     }
 });
-
 // Serve index.html
 app.get('/', function(req, res) {
     res.sendFile(path.join(__dirname, '/index.html'));
