@@ -8,6 +8,7 @@ const axios = require('axios');
 const fs = require('fs');
 const express = require('express');
 const path = require('path');
+const { MongoClient } = require('mongodb');
 
 const token = process.env.BOT_TOKEN; // Replace with your bot's token
 if (!token) {
@@ -21,25 +22,62 @@ if (!updatesChannel) {
     process.exit(1);
 }
 
-const app = express();
-const port = process.env.PORT || 3000;
+const botOwnerId = process.env.BOT_OWNER_ID; // Replace with the bot owner's Telegram ID
+if (!botOwnerId) {
+    console.error("BOT_OWNER_ID environment variable is not set.");
+    process.exit(1);
+}
 
-let data = {};
-const dataFile = 'data.json';
+// MongoDB setup
+const uri = process.env.MONGODB_URI; // Replace with your MongoDB URI
+if (!uri) {
+    console.error("MONGODB_URI environment variable is not set.");
+    process.exit(1);
+}
+const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+const dbName = 'botDB';
+const collectionName = 'userData';
 
-// Load data from JSON file
-const loadData = () => {
-    if (fs.existsSync(dataFile)) {
-        data = JSON.parse(fs.readFileSync(dataFile));
+let db;
+let collection;
+
+// Connect to MongoDB
+const connectToDB = async () => {
+    try {
+        await client.connect();
+        db = client.db(dbName);
+        collection = db.collection(collectionName);
+        console.log('Connected to MongoDB');
+    } catch (error) {
+        console.error('Failed to connect to MongoDB:', error);
+        process.exit(1);
     }
 };
 
-// Save data to JSON file
-const saveData = () => {
-    fs.writeFileSync(dataFile, JSON.stringify(data, null, 2));
+// Save data to MongoDB
+const saveData = async (userId, userData) => {
+    try {
+        await collection.updateOne({ _id: userId }, { $set: userData }, { upsert: true });
+    } catch (error) {
+        console.error('Failed to save data:', error);
+    }
 };
 
-loadData();
+// Load data from MongoDB
+const loadData = async () => {
+    try {
+        const users = await collection.find({}).toArray();
+        return users.reduce((acc, user) => {
+            acc[user._id] = user;
+            return acc;
+        }, {});
+    } catch (error) {
+        console.error('Failed to load data:', error);
+        return {};
+    }
+};
+
+connectToDB();
 
 const teraboxDomains = [
     "www.mirrobox.com", "www.nephobox.com", "freeterabox.com", "www.freeterabox.com", "1024tera.com",
@@ -119,13 +157,13 @@ bot.onText(/\/start/, async (msg) => {
 });
 
 // Handle the /stat command
-bot.onText(/\/stat/, (msg) => {
+bot.onText(/\/stat/, async (msg) => {
     const chatId = msg.chat.id;
     try {
-        const userCount = Object.keys(data).length;
-        const linkCount = Object.values(data).reduce((sum, userData) => sum + userData.links.length, 0);
+        const userCount = (await loadData()).length;
+        const linkCount = (await loadData()).reduce((sum, userData) => sum + userData.links.length, 0);
 
-        bot.sendPhoto(chatId, 'https://i.imgur.com/5qyYAhJ.jpeg', {
+        bot.sendPhoto(chatId, 'https://i.imgur.com/H91ehBY.jpeg', {
             caption: `📊 *Current Bot Stats:*\n\n👥 *Total Users:* ${userCount}\n🔗 *Links Processed:* ${linkCount}`,
             parse_mode: 'Markdown',
             reply_markup: {
@@ -141,17 +179,28 @@ bot.onText(/\/stat/, (msg) => {
 });
 
 // Handle the /broad command
-bot.onText(/\/broad (.+)/, (msg, match) => {
+bot.onText(/\/broad (.+)/, async (msg, match) => {
     const chatId = msg.chat.id;
     const broadcastMessage = match[1];
 
-    for (const userId in data) {
-        bot.sendMessage(userId, `📢 *Broadcast Message:*\n\n${broadcastMessage}`).catch(error => {
-            console.error(`Failed to send message to ${userId}:`, error);
-        });
+    if (chatId.toString() !== botOwnerId) {
+        bot.sendMessage(chatId, `❌ *You are not authorized to use this command.*`);
+        return;
     }
 
-    bot.sendMessage(chatId, `✅ *Broadcast message sent to all users.*`);
+    try {
+        const users = await loadData();
+        for (const userId in users) {
+            bot.sendMessage(userId, `📢 *Broadcast Message:*\n\n${broadcastMessage}`).catch(error => {
+                console.error(`Failed to send message to ${userId}:`, error);
+            });
+        }
+
+        bot.sendMessage(chatId, `✅ *Broadcast message sent to all users.*`);
+    } catch (error) {
+        console.error(error);
+        bot.sendMessage(chatId, `❌ *An error occurred while sending broadcast message.*`);
+    }
 });
 
 // Handle link messages
@@ -192,11 +241,12 @@ bot.on('message', async (msg) => {
             return;
         }
 
-        if (!data[chatId]) {
-            data[chatId] = { links: [] };
+        const usersData = await loadData();
+        if (!usersData[chatId]) {
+            usersData[chatId] = { links: [] };
         }
 
-        const userLinks = data[chatId].links;
+        const userLinks = usersData[chatId].links;
         const existingLink = userLinks.find(linkData => linkData.original === text);
 
         if (existingLink) {
@@ -220,7 +270,7 @@ bot.on('message', async (msg) => {
                     const downloadUrl = response.data.url;
 
                     userLinks.push({ original: text, download: downloadUrl });
-                    saveData();
+                    await saveData(chatId, usersData[chatId]);
 
                     bot.sendPhoto(chatId, 'https://i.imgur.com/5qyYAhJ.jpeg').catch(error => {
                         console.error(`Failed to send photo:`, error);
@@ -252,10 +302,11 @@ bot.on('message', async (msg) => {
 });
 
 // Serve index.html
+const app = express();
+const port = process.env.PORT || 3000;
 app.get('/', function(req, res) {
     res.sendFile(path.join(__dirname, '/index.html'));
 });
-
 app.listen(port, () => {
     console.log(`Express server is running on port ${port}`);
 });
@@ -270,6 +321,6 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 
 process.on('SIGINT', () => {
-    saveData();
+    client.close();
     process.exit();
 });
