@@ -1,3 +1,5 @@
+# 🎬 TeraBox-link-DL [![License: MIT][License-Badge]](LICENSE.md)
+
 <!-- RAINBOW LINE TOP -->
 <img src="https://github.com/SudoR2spr/SudoR2spr/raw/main/assets/line-neon.gif" width="100%">
 
@@ -11,15 +13,20 @@
 
 ✅ **Demo**: Experience the TeraBox Bot in demo: [TeraBox Bot ✨](https://t.me/Opleech_WD).
 
-## 🚀 Deploy with back4app, Render, Koyeb, Heroku
+## 🚀 Deploy with `back4app`, `Render`, `Koyeb`, `Heroku`.
 
 
 ## 🛠 Configuring Environments
 
-To ensure that your Telegram environment variables
+To Ensure That Your Telegram Environment variables `.env`
 
 - `BOT_TOKEN`: This is your bot's token, which you can generate from [BotFather](https://t.me/BotFather). This token allows your bot to authenticate and interact with the Telegram API.
+- `OP_CHANNEL`: This is your Telegram  Update channel username `@Opleech_WD`
+- `BOT_OWNER_ID`: This is your Telegram `ID` which you can generate from [Rose Bot](https://t.me/MissRose_bot).
+- `MONGODB_URI` Connecting with MongoDB Driver `Node.js` driver and version `5.5` OR Later Generate from Site ==> [MongoDB](https://cloud.mongodb.com/).
 - `PORT`: The PORT you have set. This is used `3000`.
+  
+- `#Note Don't forget to make the bot an admin on the channel`
 
 ## Botfather Commands
 ```
@@ -29,11 +36,13 @@ broad - ✅ Broadcast message sent to all users
 ```
 
 ## Do you want to change the Updates Channel  ?
-- `You have to change so *index.js lines Number* `15` *Or* `62` You need to make changes and Save`
+- `You have to change so *index.js* You need to make changes and Save`
 
 ## 🔧 Do you want to change the shortener api token?
 - `You have to change so *line Number /index.js 150.* You need to make changes to your fork repo`
 ## Shortener api site [Shortener api site](https://maxbox.icu/)
+
+- To discuss, follow up on issue ==> [#00](https://github.com/SudoR2spr/TeraBox-link-DL/issues/).
 
 <p align="center">
   <a href="https://raw.githubusercontent.com/SudoR2spr/SudoR2spr/main/assets/angel-op/Changes-and-Save.png" target="_blank">
@@ -59,4 +68,7 @@ Credits: [𝐖𝐎𝐎𝐃𝐜𝐫𝐚𝐟𝐭](https://t.me/Farooq_is_KING)
 
 - [![Contact Me On Telegram](https://img.shields.io/badge/Telegram-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/Farooq_is_king)
 
-Last Edited on: 09/12/2024
+[Code Issues]:          https://img.shields.io/github/issues/SudoR2spr/TeraBox-link-DL?label=Issues
+[License-Badge]:        https://img.shields.io/badge/License-MIT-blue.svg
+
+Last Edited on: 09/17/2024
