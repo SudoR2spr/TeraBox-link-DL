@@ -10,6 +10,10 @@ const express = require('express');
 const path = require('path');
 
 const token = process.env.BOT_TOKEN; // Replace with your bot's token
+if (!token) {
+    console.error("BOT_TOKEN environment variable is not set.");
+    process.exit(1);
+}
 const bot = new TelegramBot(token, { polling: true });
 const updatesChannel = '@Opleech_WD';
 
