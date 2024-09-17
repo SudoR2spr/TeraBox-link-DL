@@ -3,7 +3,6 @@
  * Repository: https://github.com/SudoR2spr/
  */
 
-
 const TelegramBot = require('node-telegram-bot-api');
 const axios = require('axios');
 const fs = require('fs');
@@ -55,11 +54,16 @@ const checkSubscription = async (userId) => {
     }
 };
 
+// Updated sendStartMessage to include image
 const sendStartMessage = (chatId) => {
-    bot.sendMessage(chatId, `👋 *Welcome to TeraBox Video Player Bot!* 🎉\n\n*Paste your TeraBox link and watch your video instantly—no TeraBox app needed!* 🚀\n\nPlease subscribe to our [Updates Channel](https://t.me/Opleech_WD) to start using this bot.`, {
+    bot.sendPhoto(chatId, 'https://i.imgur.com/6cUMqLc.jpeg', { // Replace with your image URL
+        caption: `👋 *Welcome to TeraBox Video Player Bot!* 🎉\n\n*Paste your TeraBox link and watch your video instantly—no TeraBox app needed!* 🚀\n\nPlease subscribe to our [Updates Channel](https://t.me/Opleech_WD) to start using this bot.`,
         parse_mode: 'Markdown',
         reply_markup: {
-            inline_keyboard: [[{ text: '〇 𝐉𝐨𝐢𝐧 𝐂𝐡𝐚𝐧𝐧𝐞𝐥 𝐓𝐨 𝐔𝐬𝐞 𝐌𝐞 〇', url: 'https://t.me/Opleech_WD' }]]
+            inline_keyboard: [
+                [{ text: '〇 𝐉𝐨𝐢𝐧 𝐂𝐡𝐚𝐧𝐧𝐞𝐥 𝐓𝐨 𝐔𝐬𝐞 𝐌𝐞 〇', url: 'https://t.me/Opleech_WD' }],
+                [{ text: '🔗 How to use Bot 🔗', url: 'https://t.me/WOODcraft_Mirror_Zone/43' }] // Add your second channel link here
+            ]
         }
     });
 };
@@ -81,12 +85,22 @@ bot.onText(/\/start/, async (msg) => {
     }
 });
 
+// Other commands and event handlers remain the same...
 bot.onText(/\/stat/, (msg) => {
     const chatId = msg.chat.id;
     try {
         const userCount = Object.keys(data).length;
         const linkCount = Object.values(data).reduce((sum, userData) => sum + userData.links.length, 0);
-        bot.sendMessage(chatId, `📊 *Current Bot Stats:*\n\n👥 *Total Users:* ${userCount}\n🔗 *Links Processed:* ${linkCount}`);
+
+        bot.sendPhoto(chatId, 'https://i.imgur.com/H91ehBY.jpeg', {
+            caption: `📊 *Current Bot Stats:*\n\n👥 *Total Users:* ${userCount}\n🔗 *Links Processed:* ${linkCount}`,
+            parse_mode: 'Markdown',
+            reply_markup: {
+                inline_keyboard: [
+                    [{ text: "✨ Dear my friend✨", url: "tg://settings" }]
+                ]
+            }
+        });
     } catch (error) {
         console.error(error);
         bot.sendMessage(chatId, `❌ *An error occurred while retrieving statistics. Please try again later.*`);
@@ -124,9 +138,16 @@ bot.on('message', async (msg) => {
         }
 
         if (!isTeraboxLink(text)) {
-            bot.sendMessage(chatId, `❌ *That is not a valid TeraBox link.*`);
+            bot.sendMessage(chatId, `❌ *That is not a valid TeraBox link.*`, {
+                reply_markup: {
+                    inline_keyboard: [
+                        [{ text: "✨ Read the message ✨", url: "https://t.me/WOODcraft_Mirror_Zone/44" }]
+                    ]
+                }
+            });
             return;
         }
+
 
         if (!data[chatId]) {
             data[chatId] = { links: [] };
@@ -138,7 +159,7 @@ bot.on('message', async (msg) => {
         if (existingLink) {
             bot.sendMessage(chatId, `✅ *Your video has already been processed.* Click the button below to view or download it.`, {
                 reply_markup: {
-                    inline_keyboard: [[{ text: 'ᢱ Watch/Download ⎙', url: existingLink.download }]]
+                    inline_keyboard: [[{ text: 'ᢱ Watch / Download ⎙', url: existingLink.download }]]
                 }
             });
             return;
@@ -154,11 +175,11 @@ bot.on('message', async (msg) => {
                     userLinks.push({ original: text, download: downloadUrl });
                     saveData();
 
-                    bot.editMessageText(`✅ *Your video is ready!*\n\n📥 *Click the button below to view or download it.*\n\n💡 *Tips:*\n\n• If the video doesn’t start playing immediately, please wait a few moments—it might take some time to load.\n• Ensure you have a stable internet connection for the best experience.`, {
+                    bot.editMessageText(`✅ *Your video is ready!*\n\n📥 *Click the button below to view or download it.*`, {
                         chat_id: chatId,
                         message_id: messageId,
                         reply_markup: {
-                            inline_keyboard: [[{ text: 'ᢱ Watch/Download ⎙', url: downloadUrl }]]
+                            inline_keyboard: [[{ text: 'ᢱ Watch / Download ⎙', url: downloadUrl }]]
                         }
                     });
                 })
