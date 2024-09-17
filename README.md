@@ -15,6 +15,9 @@
 
 ## 🚀 Deploy with `back4app`, `Render`, `Koyeb`, `Heroku`.
 
+## ## Deploy Tutorial
+
+- <b>Watch Video Google Colab Tutorial - [Click Here](https://youtube.com/@woodcraft5/videos)</b>
 
 ## 🛠 Configuring Environments
 
