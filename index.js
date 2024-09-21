@@ -114,12 +114,41 @@ bot.onText(/\/stat/, async (msg) => {
     }
 });
 
+// Handle the /broad command
+bot.onText(/\/broad (.+)/, async (msg, match) => {
+    const chatId = msg.chat.id;
+    const broadcastMessage = match[1];
+
+    // Replace 'ownerId' with your actual owner ID
+    const ownerId = process.env.OWNER_ID;
+
+    if (chatId.toString() !== ownerId) {
+        bot.sendMessage(chatId, `❌ *You do not have permission to use this command.*`);
+        return;
+    }
+
+    try {
+        const users = await usersCollection.find().toArray();
+
+        for (const user of users) {
+            bot.sendMessage(user._id.toString(), `📢 *Broadcast Message:*\n\n${broadcastMessage}`).catch(error => {
+                console.error(`Failed to send message to ${user._id}:`, error);
+            });
+        }
+
+        bot.sendMessage(chatId, `✅ *Broadcast message sent to all users.*`);
+    } catch (error) {
+        console.error(error);
+        bot.sendMessage(chatId, `❌ *An error occurred while sending the broadcast message.*`);
+    }
+});
+
 // Handle all other messages
 bot.on('message', async (msg) => {
     const chatId = msg.chat.id;
     const text = msg.text;
 
-    if (text.startsWith('/start') || text.startsWith('/stat')) {
+    if (text.startsWith('/start') || text.startsWith('/stat') || text.startsWith('/broad')) {
         return;
     }
 
