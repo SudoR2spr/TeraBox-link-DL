@@ -208,7 +208,7 @@ bot.on('message', async (msg) => {
             return;
         }
 
-        bot.sendMessage(chatId, `🔄 Processing your link...`).then(sentMessage => {
+        bot.sendMessage(chatId, `🔄 *Processing your link...*`).then(sentMessage => {
     const messageId = sentMessage.message_id;
 
     axios.get(`https://tera.ronok.workers.dev/?link=${text}&apikey=0b010c132e2cbd862cbd8a6ae430dd51d3a0d5ea`)
@@ -218,36 +218,19 @@ bot.on('message', async (msg) => {
             userLinks.push({ original: text, download: downloadUrl });
             saveData();
 
-            // Prepare the message text and photo
-            const messageText = `✅ *Your video is ready!*\n\n📥 *Click the button below to view or download it.*`;
-            const photoUrl = 'https://i.imgur.com/rzorSxY.jpeg';
-
-            // Send the photo with caption
-            bot.sendPhoto(chatId, photoUrl, {
-                caption: messageText,
-                parse_mode: 'Markdown'
-            }).then(() => {
-                // After sending the photo, send the inline keyboard in a separate message
-                bot.sendMessage(chatId, '', {
-                    reply_markup: {
-                        inline_keyboard: [
-                            [{ text: 'ᢱ Watch/Download ⎙', url: downloadUrl }],
-                            [{ text: '✨ Read the message ✨', url: 'https://t.me/WOODcraft_Mirror_Zone/44' }]
-                        ]
-                    }
-                }).catch(error => {
-                    console.error('Failed to send inline keyboard:', error);
-                });
+            bot.editMessageText(`✅ *Your video is ready!*\n\n📥 *Click the button below to view or download it.*`, {
+                chat_id: chatId,
+                message_id: messageId,
+                reply_markup: {
+                    inline_keyboard: [
+                        [{ text: 'ᢱ Watch/Download ⎙', url: downloadUrl }],
+                        [{ text: '✨ Read the message ✨', url: 'https://t.me/WOODcraft_Mirror_Zone/44' }]
+                    ]
+                }
             }).catch(error => {
-                console.error('Failed to send photo with caption:', error);
-                // If photo fails, send the error message without it
-                bot.editMessageText(`❌ *There was an error processing your link. Please try again later.*`, {
-                    chat_id: chatId,
-                    message_id: messageId
-                }).catch(error => {
-                    console.error('Failed to edit message text after error:', error);
-                });
+                console.error('Failed to edit message text:', error);
             });
+
         })
         .catch(error => {
             console.error('Error processing link:', error);
