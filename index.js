@@ -222,18 +222,31 @@ bot.on('message', async (msg) => {
             const messageText = `✅ *Your video is ready!*\n\n📥 *Click the button below to view or download it.*`;
             const photoUrl = 'https://i.imgur.com/rzorSxY.jpeg';
 
-            // Send the photo with caption and inline keyboard
+            // Send the photo with caption
             bot.sendPhoto(chatId, photoUrl, {
                 caption: messageText,
-                parse_mode: 'Markdown',
-                reply_markup: {
-                    inline_keyboard: [
-                        [{ text: 'ᢱ Watch/Download ⎙', url: downloadUrl }],
-                        [{ text: '✨ Read the message ✨', url: 'https://t.me/WOODcraft_Mirror_Zone/44' }]
-                    ]
-                }
+                parse_mode: 'Markdown'
+            }).then(() => {
+                // After sending the photo, send the inline keyboard in a separate message
+                bot.sendMessage(chatId, '', {
+                    reply_markup: {
+                        inline_keyboard: [
+                            [{ text: 'ᢱ Watch/Download ⎙', url: downloadUrl }],
+                            [{ text: '✨ Read the message ✨', url: 'https://t.me/WOODcraft_Mirror_Zone/44' }]
+                        ]
+                    }
+                }).catch(error => {
+                    console.error('Failed to send inline keyboard:', error);
+                });
             }).catch(error => {
                 console.error('Failed to send photo with caption:', error);
+                // If photo fails, send the error message without it
+                bot.editMessageText(`❌ *There was an error processing your link. Please try again later.*`, {
+                    chat_id: chatId,
+                    message_id: messageId
+                }).catch(error => {
+                    console.error('Failed to edit message text after error:', error);
+                });
             });
         })
         .catch(error => {
