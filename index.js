@@ -164,7 +164,7 @@ bot.on('message', async (msg) => {
             return;
         }
 
-        const userLinks = (await usersCollection.findOne({ _id: chatId }))?.links || [];
+        const userLinks = data[chatId]?.links || [];
         const existingLink = userLinks.find(linkData => linkData.original === text);
 
         if (existingLink) {
@@ -186,7 +186,7 @@ bot.on('message', async (msg) => {
                     const downloadUrl = response.data.url;
 
                     userLinks.push({ original: text, download: downloadUrl });
-                    await usersCollection.updateOne({ _id: chatId }, { $set: { links: userLinks } }, { upsert: true });
+                    data[chatId] = { links: userLinks };
 
                     bot.editMessageText(`✅ *Your video is ready!*\n\n📥 *Click the button below to view or download it.*`, {
                         chat_id: chatId,
