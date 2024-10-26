@@ -40,15 +40,9 @@ stats - 📊 Current Bot Stats
 broad - 📢 Broadcast Message
 ```
   
-## Botfather Commands
-```
-start - 🦋 Bot Alive Cheking
-status - 📊 Current Bot Stats
-broad - ✅ Broadcast message sent to all users
-```
 
 ## Do you want to change the Updates Channel  ?
-- `You have to change so *index.js* You need to make changes and Save`
+- `You have to change so *index.js L19* You need to make changes and Save`
 
 ## 🔧 Do you want to change the shortener api token?
 - `You have to change so *line Number /index.js 150.* You need to make changes to your fork repo`
