@@ -5,30 +5,38 @@
 
 const TelegramBot = require('node-telegram-bot-api');
 const axios = require('axios');
+const fs = require('fs');
 const express = require('express');
-const { MongoClient } = require('mongodb');
+const path = require('path');
 
-const mongoUri = process.env.MONGODB_URI; 
-const client = new MongoClient(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true });
-let db, usersCollection;
+const token = process.env.BOT_TOKEN; // Replace with your bot's token
+if (!token) {
+    console.error("BOT_TOKEN environment variable is not set.");
+    process.exit(1);
+}
 
-const initDb = async () => {
-    try {
-        await client.connect();
-        db = client.db('telegramBot');
-        usersCollection = db.collection('users');
-        console.log('Connected to MongoDB');
-    } catch (err) {
-        console.error('Failed to connect to MongoDB', err);
-        process.exit(1);
+const bot = new TelegramBot(token, { polling: true });
+const updatesChannel = '@Opleech_WD';
+
+const app = express();
+const port = process.env.PORT || 3000;
+
+let data = {};
+const dataFile = 'data.json';
+
+// Load data from JSON file
+const loadData = () => {
+    if (fs.existsSync(dataFile)) {
+        data = JSON.parse(fs.readFileSync(dataFile));
     }
 };
 
-const token = process.env.BOT_TOKEN; 
-const updatesChannel = process.env.OP_CHANNEL; 
-const bot = new TelegramBot(token, { polling: true });
-const app = express();
-const port = process.env.PORT || 3000;
+// Save data to JSON file
+const saveData = () => {
+    fs.writeFileSync(dataFile, JSON.stringify(data, null, 2));
+};
+
+loadData();
 
 const teraboxDomains = [
     "www.mirrobox.com", "www.nephobox.com", "freeterabox.com", "www.freeterabox.com", "1024tera.com",
@@ -46,21 +54,24 @@ const checkSubscription = async (userId) => {
         const chatMember = await bot.getChatMember(updatesChannel, userId);
         return chatMember.status === 'member' || chatMember.status === 'administrator' || chatMember.status === 'creator';
     } catch (error) {
-        console.error(error);
+        console.error('Error checking subscription:', error);
         return false;
     }
 };
 
+// Updated sendStartMessage to include image
 const sendStartMessage = (chatId) => {
     bot.sendPhoto(chatId, 'https://i.imgur.com/6cUMqLc.jpeg', {
         caption: `👋 *Welcome to TeraBox Video Player Bot!*\n\n*Paste your TeraBox link and watch your video instantly—no TeraBox app needed!*\n\nPlease subscribe to our [Updates Channel](https://t.me/Opleech_WD) and click /start again to begin using the bot.`,
         parse_mode: 'Markdown',
         reply_markup: {
             inline_keyboard: [
-                [{ text: 'Join Channel to Use Me', url: 'https://t.me/Opleech_WD' }],
-                [{ text: 'How to use Bot', url: 'https://t.me/WOODcraft_Mirror_Zone/43' }]
+                [{ text: '〇 𝐉𝐨𝐢𝐧 𝐂𝐡𝐚𝐧𝐧𝐞𝐥 𝐓𝐨 𝐔𝐬𝐞 𝐌𝐞 〇', url: 'https://t.me/Opleech_WD' }],
+                [{ text: '🔗 How to use Bot 🔗', url: 'https://t.me/WOODcraft_Mirror_Zone/43' }]
             ]
         }
+    }).catch(error => {
+        console.error('Failed to send start message photo:', error);
     });
 };
 
@@ -68,6 +79,7 @@ bot.onText(/\/start/, async (msg) => {
     const chatId = msg.chat.id;
     try {
         const isSubscribed = await checkSubscription(chatId);
+
         if (isSubscribed) {
             const photoUrl = 'https://i.imgur.com/rzorSxY.jpeg';
             bot.sendPhoto(chatId, photoUrl, {
@@ -75,75 +87,71 @@ bot.onText(/\/start/, async (msg) => {
                 parse_mode: 'Markdown',
                 reply_markup: {
                     inline_keyboard: [
-                        [{ text: "Any Help?", url: "https://t.me/+XfmrBSzTyRFlZTI9" }]
+                        [{ text: "✨ Any Help? ✨", url: "https://t.me/+XfmrBSzTyRFlZTI9" }]
                     ]
                 }
+            }).catch(error => {
+                console.error('Failed to send photo:', error);
             });
-            return;
         } else {
             sendStartMessage(chatId);
+
+            // Send sticker and delete it after 30 seconds
+            const stickerId = "CAACAgIAAxkBAAEM0yZm6Xz0hczRb-S5YkRIck7cjvQyNQACCh0AAsGoIEkIjTf-YvDReDYE";
+            bot.sendSticker(chatId, stickerId).then(sentSticker => {
+                setTimeout(() => {
+                    bot.deleteMessage(chatId, sentSticker.message_id).catch(error => {
+                        console.error('Failed to delete sticker message:', error);
+                    });
+                }, 30000); // 30 seconds
+            }).catch(error => {
+                console.error('Failed to send sticker:', error);
+            });
         }
     } catch (error) {
-        console.error(error);
+        console.error('Error handling /start command:', error);
         bot.sendMessage(chatId, `❌ *An error occurred. Please try again later.*`);
     }
 });
 
-// Handle the /stat command
-bot.onText(/\/stat/, async (msg) => {
+bot.onText(/\/stat/, (msg) => {
     const chatId = msg.chat.id;
     try {
-        const userCount = await usersCollection.countDocuments();
-        const linkCount = await usersCollection.aggregate([
-            { $unwind: "$links" },
-            { $count: "count" }
-        ]).toArray();
+        const userCount = Object.keys(data).length;
+        const linkCount = Object.values(data).reduce((sum, userData) => sum + userData.links.length, 0);
 
         bot.sendPhoto(chatId, 'https://i.imgur.com/H91ehBY.jpeg', {
-            caption: `📊 *Current Bot Stats:*\n\n👥 *Total Users:* ${userCount}\n🔗 *Links Processed:* ${linkCount[0]?.count || 0}`,
+            caption: `📊 *Current Bot Stats:*\n\n👥 *Total Users:* ${userCount}\n🔗 *Links Processed:* ${linkCount}`,
             parse_mode: 'Markdown',
             reply_markup: {
                 inline_keyboard: [
                     [{ text: "✨ Dear my friend✨", url: "tg://settings" }]
                 ]
             }
+        }).catch(error => {
+            console.error('Failed to send stats photo:', error);
         });
     } catch (error) {
-        console.error(error);
+        console.error('Error handling /stat command:', error);
         bot.sendMessage(chatId, `❌ *An error occurred while retrieving statistics. Please try again later.*`);
     }
 });
 
-// Handle the /broad command
-bot.onText(/\/broad (.+)/, async (msg, match) => {
+bot.onText(/\/broad (.+)/, (msg, match) => {
     const chatId = msg.chat.id;
     const broadcastMessage = match[1];
 
-    // Replace 'ownerId' with your actual owner ID
-    const ownerId = process.env.OWNER_ID;
-
-    if (chatId.toString() !== ownerId) {
-        bot.sendMessage(chatId, `❌ *You do not have permission to use this command.*`);
-        return;
+    for (const userId in data) {
+        bot.sendMessage(userId, `📢 *Broadcast Message:*\n\n${broadcastMessage}`).catch(error => {
+            console.error(`Failed to send broadcast message to ${userId}:`, error);
+        });
     }
 
-    try {
-        const users = await usersCollection.find().toArray();
-
-        for (const user of users) {
-            bot.sendMessage(user._id.toString(), `📢 *Broadcast Message:*\n\n${broadcastMessage}`).catch(error => {
-                console.error(`Failed to send message to ${user._id}:`, error);
-            });
-        }
-
-        bot.sendMessage(chatId, `✅ *Broadcast message sent to all users.*`);
-    } catch (error) {
-        console.error(error);
-        bot.sendMessage(chatId, `❌ *An error occurred while sending the broadcast message.*`);
-    }
+    bot.sendMessage(chatId, `✅ *Broadcast message sent to all users.*`).catch(error => {
+        console.error('Failed to send broadcast confirmation:', error);
+    });
 });
 
-// Handle all other messages
 bot.on('message', async (msg) => {
     const chatId = msg.chat.id;
     const text = msg.text;
@@ -154,26 +162,48 @@ bot.on('message', async (msg) => {
 
     try {
         const isSubscribed = await checkSubscription(chatId);
+
         if (!isSubscribed) {
-            sendStartMessage(chatId);
+            const stickerId = "CAACAgIAAxkBAAEM0yZm6Xz0hczRb-S5YkRIck7cjvQyNQACCh0AAsGoIEkIjTf-YvDReDYE";
+            bot.sendSticker(chatId, stickerId).then(sentSticker => {
+                setTimeout(() => {
+                    bot.deleteMessage(chatId, sentSticker.message_id).catch(error => {
+                        console.error('Failed to delete sticker message:', error);
+                    });
+                }, 30000); // 30 seconds
+            }).catch(error => {
+                console.error('Failed to send sticker:', error);
+            });
             return;
         }
 
         if (!isTeraboxLink(text)) {
-            bot.sendMessage(chatId, `❌ *That is not a valid TeraBox link.*`);
+            bot.sendMessage(chatId, `❌ *That is not a valid TeraBox link.*`, {
+                reply_markup: {
+                    inline_keyboard: [
+                        [{ text: "✨ Read the message ✨", url: "https://t.me/WOODcraft_Mirror_Zone/44" }]
+                    ]
+                }
+            }).catch(error => {
+                console.error('Failed to send invalid link message:', error);
+            });
             return;
         }
 
-        const userLinks = data[chatId]?.links || [];
+        if (!data[chatId]) {
+            data[chatId] = { links: [] };
+        }
+
+        const userLinks = data[chatId].links;
         const existingLink = userLinks.find(linkData => linkData.original === text);
 
         if (existingLink) {
-            bot.sendPhoto(chatId, 'https://i.imgur.com/rzorSxY.jpeg', {
-                caption: `✅ *Your video is ready!*\n\n📥 *Click the button below to view or download it.*`,
-                parse_mode: 'Markdown',
+            bot.sendMessage(chatId, `✅ *Your video has already been processed.* Click the button below to view or download it.`, {
                 reply_markup: {
                     inline_keyboard: [[{ text: 'ᢱ Watch / Download ⎙', url: existingLink.download }]]
                 }
+            }).catch(error => {
+                console.error('Failed to send already processed message:', error);
             });
             return;
         }
@@ -186,39 +216,61 @@ bot.on('message', async (msg) => {
                     const downloadUrl = response.data.url;
 
                     userLinks.push({ original: text, download: downloadUrl });
-                    data[chatId] = { links: userLinks };
+                    saveData();
 
                     bot.editMessageText(`✅ *Your video is ready!*\n\n📥 *Click the button below to view or download it.*`, {
                         chat_id: chatId,
                         message_id: messageId,
                         reply_markup: {
                             inline_keyboard: [
-                                [{ text: 'ᢱ Watch/Download ⎙', url: downloadUrl }]
+                                [{ text: 'ᢱ Watch/Download ⎙', url: downloadUrl }],
+                                [{ text: '✨ Read the message ✨', url: 'https://t.me/WOODcraft_Mirror_Zone/44' }]
                             ]
                         }
+                    }).catch(error => {
+                        console.error('Failed to edit message text:', error);
                     });
+
+                    bot.sendPhoto(chatId, 'https://i.imgur.com/rzorSxY.jpeg').catch(error => {
+                        console.error('Failed to send photo:', error);
+                    });
+
                 })
                 .catch(error => {
-                    console.error(error);
+                    console.error('Error processing link:', error);
                     bot.editMessageText(`❌ *There was an error processing your link. Please try again later.*`, {
                         chat_id: chatId,
                         message_id: messageId
+                    }).catch(error => {
+                        console.error('Failed to edit message text after error:', error);
                     });
                 });
+        }).catch(error => {
+            console.error('Failed to send processing message:', error);
         });
     } catch (error) {
-        console.error(error);
+        console.error('Error handling message:', error);
         bot.sendMessage(chatId, `❌ *An error occurred. Please try again later.*`);
     }
 });
 
-// Initialize the bot and database
-initDb();
-app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
+app.get('/', function(req, res) {
+    res.sendFile(path.join(__dirname, '/index.html'));
 });
 
-// Add this route
-app.get('/', (req, res) => {
-    res.send('TeraBox Bot is running!');
+app.listen(port, () => {
+    console.log(`Express server is running on port ${port}`);
+});
+
+process.on('uncaughtException', (err) => {
+    console.error('Uncaught Exception:', err);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('Unhandled Rejection:', reason, 'at', promise);
+});
+
+process.on('SIGINT', () => {
+    saveData();
+    process.exit();
 });
