@@ -218,27 +218,22 @@ bot.on('message', async (msg) => {
             userLinks.push({ original: text, download: downloadUrl });
             saveData();
 
-            // Prepare the message and photo to be sent
+            // Prepare the message text and photo
             const messageText = `✅ *Your video is ready!*\n\n📥 *Click the button below to view or download it.*`;
             const photoUrl = 'https://i.imgur.com/rzorSxY.jpeg';
 
-            // Send the photo first
-            bot.sendPhoto(chatId, photoUrl).then(() => {
-                // Then edit the message text
-                bot.editMessageText(messageText, {
-                    chat_id: chatId,
-                    message_id: messageId,
-                    reply_markup: {
-                        inline_keyboard: [
-                            [{ text: 'ᢱ Watch/Download ⎙', url: downloadUrl }],
-                            [{ text: '✨ Read the message ✨', url: 'https://t.me/WOODcraft_Mirror_Zone/44' }]
-                        ]
-                    }
-                }).catch(error => {
-                    console.error('Failed to edit message text:', error);
-                });
+            // Send the photo with caption and inline keyboard
+            bot.sendPhoto(chatId, photoUrl, {
+                caption: messageText,
+                parse_mode: 'Markdown',
+                reply_markup: {
+                    inline_keyboard: [
+                        [{ text: 'ᢱ Watch/Download ⎙', url: downloadUrl }],
+                        [{ text: '✨ Read the message ✨', url: 'https://t.me/WOODcraft_Mirror_Zone/44' }]
+                    ]
+                }
             }).catch(error => {
-                console.error('Failed to send photo:', error);
+                console.error('Failed to send photo with caption:', error);
             });
         })
         .catch(error => {
