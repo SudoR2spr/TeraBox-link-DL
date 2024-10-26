@@ -19,15 +19,24 @@
 
 - <b>Watch Video Google Colab Tutorial - [Click Here](https://youtube.com/@woodcraft5/videos)</b>
 
-## 🛠 Configuring Environments
+<hr>
+<h5><img src="https://raw.githubusercontent.com/SudoR2spr/SudoR2spr/main/Premium-icon/pendrive-storage-put-in-out.gif" align="center" width="50"> Environment Variables</h5>
 
-To Ensure That Your Telegram Environment variables `.env`
+ <ul>
+   <li>🔧 Your bot details add: <code>config.json</code> replace your bot details</li>
+</ul> 
 
-- `BOT_TOKEN`: This is your bot's token, which you can generate from [BotFather](https://t.me/BotFather). This token allows your bot to authenticate and interact with the Telegram API.
-- `OP_CHANNEL`: This is your Telegram  Update channel username `@Opleech_WD`
-- `BOT_OWNER_ID`: This is your Telegram `ID` which you can generate from [Rose Bot](https://t.me/MissRose_bot).
-- `MONGODB_URI`: Connecting with MongoDB Driver `Node.js` driver and version `5.5` OR Later Generate from Site ==> [MongoDB](https://cloud.mongodb.com/).
-- `PORT`: The PORT you have set. This is used `3000`.
+- `BOT_TOKEN`: Your Bot token from [@BotFather](https://t.me/BotFather)
+- `PORT`: `3000` OUR `5000`YOUR CHOICE 
+<br>
+
+- Bot command @BotFather
+
+```
+start - ⚡️ Bot alive cheking
+stats - 📊 Current Bot Stats
+broad - 📢 Broadcast Message
+```
   
 - `#Note Don't forget to make the bot an admin on the channel`
 
@@ -74,4 +83,4 @@ Credits: [𝐖𝐎𝐎𝐃𝐜𝐫𝐚𝐟𝐭](https://t.me/Farooq_is_KING)
 [Code Issues]:          https://img.shields.io/github/issues/SudoR2spr/TeraBox-link-DL?label=Issues
 [License-Badge]:        https://img.shields.io/badge/License-MIT-blue.svg
 
-Last Edited on: 09/17/2024
+Last Edited on: 27/10/2024
