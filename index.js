@@ -264,3 +264,10 @@ app.listen(port, () => {
 app.get('/', (req, res) => {
     res.send('TeraBox Bot is running!');
 });
+
+// Handle SIGINT (Ctrl+C)
+process.on('SIGINT', () => {
+    console.log("Saving data and exiting...");
+    saveData(); // Save data before exiting
+    process.exit(); // Exit the process
+});
