@@ -14,6 +14,7 @@
 ✅ **Demo**: Experience the TeraBox Bot in demo: [TeraBox Bot ✨](https://t.me/Opleech_WD).
 
 ## 🚀 Deploy with `back4app`, `Render`, `Koyeb`, `Heroku`.
+<li>🤖 Any changes you make to your fork repo.<a href="https://github.com/SudoR2spr/TeraBox-link-DL/fork">🔗 Click Here To Fork Repo</a></li>
 
 ## Deploy Tutorial
 
@@ -23,7 +24,7 @@
 <h5><img src="https://raw.githubusercontent.com/SudoR2spr/SudoR2spr/main/Premium-icon/pendrive-storage-put-in-out.gif" align="center" width="50"> Environment Variables</h5>
 
  <ul>
-   <li>🔧 Your bot details add: <code>config.json</code> replace your bot details</li>
+   <li>🔧 Your bot details add: <code>.env</code> replace your bot details</li>
 </ul> 
 
 - `BOT_TOKEN`: Your Bot token from [@BotFather](https://t.me/BotFather)
