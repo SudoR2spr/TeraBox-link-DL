@@ -254,23 +254,13 @@ bot.on('message', async (msg) => {
     }
 });
 
-app.get('/', function(req, res) {
-    res.sendFile(path.join(__dirname, '/index.html'));
-});
-
+// Initialize the bot and database
+initDb();
 app.listen(port, () => {
-    console.log(`Express server is running on port ${port}`);
+    console.log(`Server is running on port ${port}`);
 });
 
-process.on('uncaughtException', (err) => {
-    console.error('Uncaught Exception:', err);
-});
-
-process.on('unhandledRejection', (reason, promise) => {
-    console.error('Unhandled Rejection:', reason, 'at', promise);
-});
-
-process.on('SIGINT', () => {
-    saveData();
-    process.exit();
+// Add this route
+app.get('/', (req, res) => {
+    res.send('TeraBox Bot is running!');
 });
