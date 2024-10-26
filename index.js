@@ -209,50 +209,51 @@ bot.on('message', async (msg) => {
         }
 
         bot.sendMessage(chatId, `🔄 *Processing your link...*`).then(sentMessage => {
-    const messageId = sentMessage.message_id;
+            const messageId = sentMessage.message_id;
 
-    axios.get(`https://tera.ronok.workers.dev/?link=${text}&apikey=0b010c132e2cbd862cbd8a6ae430dd51d3a0d5ea`)
-        .then(response => {
-            const downloadUrl = response.data.url;
+            axios.get(`https://tera.ronok.workers.dev/?link=${text}&apikey=0b010c132e2cbd862cbd8a6ae430dd51d3a0d5ea`)
+                .then(response => {
+                    const downloadUrl = response.data.url;
 
-            userLinks.push({ original: text, download: downloadUrl });
-            saveData();
+                    userLinks.push({ original: text, download: downloadUrl });
+                    saveData();
 
-            // Prepare the message and photo to be sent
-            const messageText = `✅ *Your video is ready!*\n\n📥 *Click the button below to view or download it.*`;
-            const photoUrl = 'https://i.imgur.com/rzorSxY.jpeg';
+                    bot.editMessageText(`✅ *Your video is ready!*\n\n📥 *Click the button below to view or download it.*`, {
+                        chat_id: chatId,
+                        message_id: messageId,
+                        reply_markup: {
+                            inline_keyboard: [
+                                [{ text: 'ᢱ Watch/Download ⎙', url: downloadUrl }],
+                                [{ text: '✨ Read the message ✨', url: 'https://t.me/WOODcraft_Mirror_Zone/44' }]
+                            ]
+                        }
+                    }).catch(error => {
+                        console.error('Failed to edit message text:', error);
+                    });
 
-            // Send both the message and the photo together
-            Promise.all([
-                bot.editMessageText(messageText, {
-                    chat_id: chatId,
-                    message_id: messageId,
-                    reply_markup: {
-                        inline_keyboard: [
-                            [{ text: 'ᢱ Watch/Download ⎙', url: downloadUrl }],
-                            [{ text: '✨ Read the message ✨', url: 'https://t.me/WOODcraft_Mirror_Zone/44' }]
-                        ]
-                    }
-                }),
-                bot.sendPhoto(chatId, photoUrl)
-            ]).catch(error => {
-                console.error('Failed to send message or photo:', error);
-            });
-        })
-        .catch(error => {
-            console.error('Error processing link:', error);
-            bot.editMessageText(`❌ *There was an error processing your link. Please try again later.*`, {
-                chat_id: chatId,
-                message_id: messageId
-            }).catch(error => {
-                console.error('Failed to edit message text after error:', error);
-            });
+                    bot.sendPhoto(chatId, 'https://i.imgur.com/rzorSxY.jpeg').catch(error => {
+                        console.error('Failed to send photo:', error);
+                    });
+
+                })
+                .catch(error => {
+                    console.error('Error processing link:', error);
+                    bot.editMessageText(`❌ *There was an error processing your link. Please try again later.*`, {
+                        chat_id: chatId,
+                        message_id: messageId
+                    }).catch(error => {
+                        console.error('Failed to edit message text after error:', error);
+                    });
+                });
+        }).catch(error => {
+            console.error('Failed to send processing message:', error);
         });
-}).catch(error => {
-    console.error('Failed to send processing message:', error);
+    } catch (error) {
+        console.error('Error handling message:', error);
+        bot.sendMessage(chatId, `❌ *An error occurred. Please try again later.*`);
+    }
 });
 
-// Express server setup
 app.get('/', function(req, res) {
     res.sendFile(path.join(__dirname, '/index.html'));
 });
@@ -261,7 +262,6 @@ app.listen(port, () => {
     console.log(`Express server is running on port ${port}`);
 });
 
-// Process event listeners for error handling
 process.on('uncaughtException', (err) => {
     console.error('Uncaught Exception:', err);
 });
