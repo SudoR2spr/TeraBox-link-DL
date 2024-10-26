@@ -208,7 +208,7 @@ bot.on('message', async (msg) => {
             return;
         }
 
-        bot.sendMessage(chatId, `🔄 *Processing your link...*`).then(sentMessage => {
+        bot.sendMessage(chatId, `🔄 **Processing your link...**`).then(sentMessage => {
     const messageId = sentMessage.message_id;
 
     axios.get(`https://tera.ronok.workers.dev/?link=${text}&apikey=0b010c132e2cbd862cbd8a6ae430dd51d3a0d5ea`)
@@ -220,9 +220,11 @@ bot.on('message', async (msg) => {
 
             // Prepare the message and photo to be sent
             const messageText = `✅ *Your video is ready!*\n\n📥 *Click the button below to view or download it.*`;
+            const photoUrl = 'https://i.imgur.com/rzorSxY.jpeg';
 
-            // Send both the message and the photo together
-            Promise.all([
+            // Send the photo first
+            bot.sendPhoto(chatId, photoUrl).then(() => {
+                // Then edit the message text
                 bot.editMessageText(messageText, {
                     chat_id: chatId,
                     message_id: messageId,
@@ -232,10 +234,11 @@ bot.on('message', async (msg) => {
                             [{ text: '✨ Read the message ✨', url: 'https://t.me/WOODcraft_Mirror_Zone/44' }]
                         ]
                     }
-                }),
-                bot.sendPhoto(chatId, 'https://i.imgur.com/rzorSxY.jpeg')
-            ]).catch(error => {
-                console.error('Failed to send message or photo:', error);
+                }).catch(error => {
+                    console.error('Failed to edit message text:', error);
+                });
+            }).catch(error => {
+                console.error('Failed to send photo:', error);
             });
         })
         .catch(error => {
