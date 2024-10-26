@@ -28,7 +28,8 @@
 
 - `BOT_TOKEN`: Your Bot token from [@BotFather](https://t.me/BotFather)
 - `PORT`: `3000` OUR `5000`YOUR CHOICE
-- GO [/index.js#L19](https://github.com/SudoR2spr/TeraBox-link-DL/blob/master/index.js#L19)UpdatesChannel `@Opleech_WD` Edit add your channel `@Username`
+- GO [ /index.js#L19 ](https://github.com/SudoR2spr/TeraBox-link-DL/blob/master/index.js#L19) UpdatesChannel `@Opleech_WD` Edit add your channel `@Username`
+- # Note Don't forget to make the bot an admin on the channel
 <br>
 
 - Bot command @BotFather
@@ -39,8 +40,6 @@ stats - 📊 Current Bot Stats
 broad - 📢 Broadcast Message
 ```
   
-- `#Note Don't forget to make the bot an admin on the channel`
-
 ## Botfather Commands
 ```
 start - 🦋 Bot Alive Cheking
