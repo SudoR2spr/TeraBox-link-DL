@@ -218,25 +218,39 @@ bot.on('message', async (msg) => {
             userLinks.push({ original: text, download: downloadUrl });
             saveData();
 
-            // Edit the message text first
-            bot.editMessageText(`✅ *Your video is ready!*\n\n📥 *Click the button below to view or download it.*`, {
-                chat_id: chatId,
-                message_id: messageId,
-                reply_markup: {
-                    inline_keyboard: [
-                        [{ text: 'ᢱ Watch/Download ⎙', url: downloadUrl }],
-                        [{ text: '✨ Read the message ✨', url: 'https://t.me/WOODcraft_Mirror_Zone/44' }]
-                    ]
-                }
-            })
-            .then(() => {
-                // Send the photo only after the message text has been edited
-                return bot.sendPhoto(chatId, 'https://i.imgur.com/rzorSxY.jpeg');
-            })
-            .catch(error => {
-                console.error('Failed to edit message text or send photo:', error);
+            // Prepare the message and photo to be sent
+            const messageText = `✅ *Your video is ready!*\n\n📥 *Click the button below to view or download it.*`;
+            const photoUrl = 'https://i.imgur.com/rzorSxY.jpeg';
+
+            // Send both the message and the photo together
+            Promise.all([
+                bot.editMessageText(messageText, {
+                    chat_id: chatId,
+                    message_id: messageId,
+                    reply_markup: {
+                        inline_keyboard: [
+                            [{ text: 'ᢱ Watch/Download ⎙', url: downloadUrl }],
+                            [{ text: '✨ Read the message ✨', url: 'https://t.me/WOODcraft_Mirror_Zone/44' }]
+                        ]
+                    }
+                }),
+                bot.sendPhoto(chatId, photoUrl)
+            ]).catch(error => {
+                console.error('Failed to send message or photo:', error);
             });
         })
+        .catch(error => {
+            console.error('Error processing link:', error);
+            bot.editMessageText(`❌ *There was an error processing your link. Please try again later.*`, {
+                chat_id: chatId,
+                message_id: messageId
+            }).catch(error => {
+                console.error('Failed to edit message text after error:', error);
+            });
+        });
+}).catch(error => {
+    console.error('Failed to send processing message:', error);
+});
         .catch(error => {
             console.error('Error processing link:', error);
             bot.editMessageText(`❌ *There was an error processing your link. Please try again later.*`, {
