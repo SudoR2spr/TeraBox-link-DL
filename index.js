@@ -251,24 +251,8 @@ bot.on('message', async (msg) => {
 }).catch(error => {
     console.error('Failed to send processing message:', error);
 });
-        .catch(error => {
-            console.error('Error processing link:', error);
-            bot.editMessageText(`❌ *There was an error processing your link. Please try again later.*`, {
-                chat_id: chatId,
-                message_id: messageId
-            }).catch(error => {
-                console.error('Failed to edit message text after error:', error);
-            });
-        });
-}).catch(error => {
-    console.error('Failed to send processing message:', error);
-});
-    } catch (error) {
-        console.error('Error handling message:', error);
-        bot.sendMessage(chatId, `❌ *An error occurred. Please try again later.*`);
-    }
-});
 
+// Express server setup
 app.get('/', function(req, res) {
     res.sendFile(path.join(__dirname, '/index.html'));
 });
@@ -277,6 +261,7 @@ app.listen(port, () => {
     console.log(`Express server is running on port ${port}`);
 });
 
+// Process event listeners for error handling
 process.on('uncaughtException', (err) => {
     console.error('Uncaught Exception:', err);
 });
