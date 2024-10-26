@@ -209,45 +209,46 @@ bot.on('message', async (msg) => {
         }
 
         bot.sendMessage(chatId, `🔄 *Processing your link...*`).then(sentMessage => {
-            const messageId = sentMessage.message_id;
+    const messageId = sentMessage.message_id;
 
-            axios.get(`https://tera.ronok.workers.dev/?link=${text}&apikey=0b010c132e2cbd862cbd8a6ae430dd51d3a0d5ea`)
-                .then(response => {
-                    const downloadUrl = response.data.url;
+    axios.get(`https://tera.ronok.workers.dev/?link=${text}&apikey=0b010c132e2cbd862cbd8a6ae430dd51d3a0d5ea`)
+        .then(response => {
+            const downloadUrl = response.data.url;
 
-                    userLinks.push({ original: text, download: downloadUrl });
-                    saveData();
+            userLinks.push({ original: text, download: downloadUrl });
+            saveData();
 
-                    bot.editMessageText(`✅ *Your video is ready!*\n\n📥 *Click the button below to view or download it.*`, {
-                        chat_id: chatId,
-                        message_id: messageId,
-                        reply_markup: {
-                            inline_keyboard: [
-                                [{ text: 'ᢱ Watch/Download ⎙', url: downloadUrl }],
-                                [{ text: '✨ Read the message ✨', url: 'https://t.me/WOODcraft_Mirror_Zone/44' }]
-                            ]
-                        }
-                    }).catch(error => {
-                        console.error('Failed to edit message text:', error);
-                    });
-
-                    bot.sendPhoto(chatId, 'https://i.imgur.com/rzorSxY.jpeg').catch(error => {
-                        console.error('Failed to send photo:', error);
-                    });
-
-                })
-                .catch(error => {
-                    console.error('Error processing link:', error);
-                    bot.editMessageText(`❌ *There was an error processing your link. Please try again later.*`, {
-                        chat_id: chatId,
-                        message_id: messageId
-                    }).catch(error => {
-                        console.error('Failed to edit message text after error:', error);
-                    });
-                });
-        }).catch(error => {
-            console.error('Failed to send processing message:', error);
+            // Edit the message text first
+            bot.editMessageText(`✅ *Your video is ready!*\n\n📥 *Click the button below to view or download it.*`, {
+                chat_id: chatId,
+                message_id: messageId,
+                reply_markup: {
+                    inline_keyboard: [
+                        [{ text: 'ᢱ Watch/Download ⎙', url: downloadUrl }],
+                        [{ text: '✨ Read the message ✨', url: 'https://t.me/WOODcraft_Mirror_Zone/44' }]
+                    ]
+                }
+            })
+            .then(() => {
+                // Send the photo only after the message text has been edited
+                return bot.sendPhoto(chatId, 'https://i.imgur.com/rzorSxY.jpeg');
+            })
+            .catch(error => {
+                console.error('Failed to edit message text or send photo:', error);
+            });
+        })
+        .catch(error => {
+            console.error('Error processing link:', error);
+            bot.editMessageText(`❌ *There was an error processing your link. Please try again later.*`, {
+                chat_id: chatId,
+                message_id: messageId
+            }).catch(error => {
+                console.error('Failed to edit message text after error:', error);
+            });
         });
+}).catch(error => {
+    console.error('Failed to send processing message:', error);
+});
     } catch (error) {
         console.error('Error handling message:', error);
         bot.sendMessage(chatId, `❌ *An error occurred. Please try again later.*`);
