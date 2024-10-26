@@ -15,7 +15,7 @@
 
 ## 🚀 Deploy with `back4app`, `Render`, `Koyeb`, `Heroku`.
 
-## ## Deploy Tutorial
+## Deploy Tutorial
 
 - <b>Watch Video Google Colab Tutorial - [Click Here](https://youtube.com/@woodcraft5/videos)</b>
 
@@ -27,7 +27,8 @@
 </ul> 
 
 - `BOT_TOKEN`: Your Bot token from [@BotFather](https://t.me/BotFather)
-- `PORT`: `3000` OUR `5000`YOUR CHOICE 
+- `PORT`: `3000` OUR `5000`YOUR CHOICE
+- GO [/index.js#L19](https://github.com/SudoR2spr/TeraBox-link-DL/blob/master/index.js#L19)UpdatesChannel `@Opleech_WD` Edit add your channel `@Username`
 <br>
 
 - Bot command @BotFather
